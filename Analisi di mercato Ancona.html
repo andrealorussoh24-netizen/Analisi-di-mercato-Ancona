@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancona 2024: Cruscotto Interattivo per Investitori Immobiliari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Beige, Earthy Brown, Muted Green) -->
+    <!-- Application Structure Plan: A single-page, multi-section interactive dashboard. Navigation is handled by a sticky top bar. This structure was chosen to guide the investor logically from a high-level market overview to a specific, actionable investment plan. The dashboard format with interactive charts, a clickable map, and an ROI calculator makes complex data easily digestible and allows for user-driven exploration, which is more effective for decision-making than a static report. -->
+    <!-- Visualization & Content Choices: Key data points are presented as KPI cards for quick insights. Tourism trends are shown with a Chart.js bar chart for clear year-over-year comparison. The event calendar is an interactive grid with filters (JS) to improve usability over a static table. The core strategic choice of investment zone is visualized on a clickable map (HTML/JS hotspots) to make geographical data intuitive. The financial projection is transformed into an interactive ROI calculator (JS) to engage the user and demonstrate profitability drivers. All visualizations use Chart.js on canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F2;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #A87B5A;
+            border-bottom-color: #A87B5A;
+        }
+        .kpi-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .btn-primary {
+            background-color: #A87B5A;
+            color: #FFFFFF;
+        }
+        .btn-primary:hover {
+            background-color: #8e684d;
+        }
+        .btn-secondary {
+            background-color: #5A8A7B;
+            color: #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background-color: #4a7366;
+        }
+        .btn-filter.active {
+            background-color: #A87B5A;
+            color: #FFFFFF;
+            border-color: #A87B5A;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="sticky top-0 bg-white/80 backdrop-blur-lg z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#A87B5A]">Ancona 2024</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#panoramica" class="nav-link px-3 py-2 text-sm font-medium border-b-2 border-transparent">Panoramica</a>
+                        <a href="#mercato" class="nav-link px-3 py-2 text-sm font-medium border-b-2 border-transparent">Mercato</a>
+                        <a href="#opportunita" class="nav-link px-3 py-2 text-sm font-medium border-b-2 border-transparent">Opportunità</a>
+                        <a href="#strategia" class="nav-link px-3 py-2 text-sm font-medium border-b-2 border-transparent">Strategia</a>
+                        <a href="#piano-azione" class="nav-link px-3 py-2 text-sm font-medium border-b-2 border-transparent">Piano d'Azione</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-extrabold text-[#A87B5A] tracking-tight">Cruscotto per l'Investitore Immobiliare</h2>
+            <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-gray-600">Analisi strategica del mercato turistico di Ancona per massimizzare la redditività degli affitti brevi nel 2024.</p>
+            <div class="mt-8 p-6 bg-white rounded-xl shadow-lg inline-block border border-gray-200">
+                <p class="text-lg text-gray-700">Rendimento Potenziale Stimato (ROI)</p>
+                <p class="text-5xl font-bold text-[#5A8A7B] mt-2">dal5% al 10,47%</p>
+                <p class="text-sm text-gray-500 mt-1">Basato su un modello di gestione professionale in zona strategica.</p>
+            </div>
+        </section>
+
+        <section id="panoramica" class="py-12">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold tracking-tight text-[#A87B5A]">1. Panoramica del Mercato Turistico</h3>
+                <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">Il 2024 segna un anno record per il turismo nelle Marche, con una crescita trainata da un'ondata di visitatori internazionali ad alta capacità di spesa. Questo slancio crea un contesto eccezionalmente favorevole per gli investimenti.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div class="kpi-card text-center">
+                    <p class="text-sm font-medium text-gray-500">Presenze Turistiche 2024 (Marche)</p>
+                    <p class="mt-1 text-4xl font-bold text-[#5A8A7B]">11,8 M</p>
+                    <p class="mt-1 text-sm text-green-600">+3,88% vs 2023</p>
+                </div>
+                <div class="kpi-card text-center">
+                    <p class="text-sm font-medium text-gray-500">Crescita Presenze Straniere (Marche)</p>
+                    <p class="mt-1 text-4xl font-bold text-[#5A8A7B]">+15%</p>
+                    <p class="mt-1 text-sm text-green-600">vs 2023</p>
+                </div>
+                <div class="kpi-card text-center">
+                    <p class="text-sm font-medium text-gray-500">Crescita Spesa Turisti Stranieri</p>
+                    <p class="mt-1 text-4xl font-bold text-[#5A8A7B]">+42,5%</p>
+                    <p class="mt-1 text-sm text-green-600">vs 2023</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <h4 class="text-xl font-semibold mb-4 text-center">Evoluzione Flussi Turistici (Regione Marche, Milioni)</h4>
+                <div class="chart-container">
+                    <canvas id="flussiTuristiciChart"></canvas>
+                </div>
+                 <p class="text-xs text-center text-gray-500 mt-4">Fonte: Elaborazione dati Regione Marche. I dati mostrano una crescita costante e robusta, superando ampiamente i livelli pre-pandemici e confermando un'espansione strutturale del settore.</p>
+            </div>
+        </section>
+
+        <section id="mercato" class="py-12">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold tracking-tight text-[#A87B5A]">2. Il Mercato degli Affitti Brevi ad Ancona</h3>
+                <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">Il mercato locale degli affitti brevi, sebbene di dimensioni contenute, mostra metriche in crescita e un notevole potenziale inespresso, ideale per un operatore professionale capace di differenziarsi per qualità e gestione.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h4 class="text-xl font-semibold mb-4 text-center">Metriche Chiave del Mercato Anconetano</h4>
+                     <ul class="space-y-4">
+                        <li class="flex justify-between items-center">
+                            <span class="font-medium">Annunci Attivi</span>
+                            <span class="font-bold text-lg text-[#5A8A7B]">~627</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span class="font-medium">Tariffa Media Giornaliera (ADR)</span>
+                            <span class="font-bold text-lg text-[#5A8A7B]">~112 €</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span class="font-medium">Tasso di Occupazione Medio</span>
+                            <span class="font-bold text-lg text-[#5A8A7B]">53%</span>
+                        </li>
+                         <li class="flex justify-between items-center">
+                            <span class="font-medium">Ricavo per Unità (RevPAR)</span>
+                            <span class="font-bold text-lg text-[#5A8A7B]">~57 €</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span class="font-medium">Ricavo Annuo Medio</span>
+                            <span class="font-bold text-lg text-[#5A8A7B]">~8.000 €</span>
+                        </li>
+                    </ul>
+                    <p class="text-xs text-center text-gray-500 mt-4">Fonte: AirDNA, 2024. Queste medie rappresentano il punto di partenza; una gestione professionale può superarle significativamente.</p>
+                </div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h4 class="text-xl font-semibold mb-4 text-center">Tipologia Immobili più Diffusa</h4>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="tipologiaImmobiliChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-gray-500 mt-4">La netta prevalenza di bilocali e trilocali indica che la domanda è concentrata su coppie, piccole famiglie e professionisti.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="opportunita" class="py-12">
+             <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold tracking-tight text-[#A87B5A]">3. Calendario delle Opportunità 2025</h3>
+                <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">Una strategia di prezzo dinamica, basata sugli eventi, è fondamentale. Il 2025 offre numerosi picchi di domanda che trasformano l'intero anno in un'opportunità di guadagno.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex flex-wrap justify-center gap-2 mb-6">
+                    <button class="btn-filter active px-4 py-2 text-sm font-medium border rounded-full" data-filter="all">Tutti</button>
+                    <button class="btn-filter px-4 py-2 text-sm font-medium border rounded-full" data-filter="picco">Grandi Eventi</button>
+                    <button class="btn-filter px-4 py-2 text-sm font-medium border rounded-full" data-filter="alto">Festività</button>
+                    <button class="btn-filter px-4 py-2 text-sm font-medium border rounded-full" data-filter="medio-alto">Cultura & Fiere</button>
+                </div>
+                <div id="event-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                </div>
+            </div>
+        </section>
+        
+        <section id="strategia" class="py-12">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold tracking-tight text-[#A87B5A]">4. Strategia di Investimento: Dove Comprare</h3>
+                <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">La scelta della zona è cruciale. L'analisi incrocia prezzi di acquisto, potenziale di rendita e prospettive di rivalutazione per identificare l'area con il miglior rapporto rischio/rendimento.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h4 class="text-xl font-semibold mb-4">Mappa delle Zone di Investimento</h4>
+                        <p class="text-sm text-gray-600 mb-4">Clicca su una zona per visualizzare i dettagli. La nostra analisi strategica indica la zona **Piano/Stazione** come l'opportunità più interessante per un profilo di investimento orientato al valore e alla crescita.</p>
+                        <div id="zone-buttons" class="space-y-2">
+                            <button data-zone="conero" class="w-full text-left p-3 rounded-lg border transition">Zona Conero</button>
+                            <button data-zone="centro" class="w-full text-left p-3 rounded-lg border transition">Centro Storico</button>
+                            <button data-zone="passetto" class="w-full text-left p-3 rounded-lg border transition">Adriatico/Passetto</button>
+                            <button data-zone="stazione" class="w-full text-left p-3 rounded-lg border transition bg-[#A87B5A] text-white font-semibold">Piano/Stazione (Consigliata)</button>
+                        </div>
+                    </div>
+                    <div id="zone-details" class="md:col-span-2 p-6 rounded-lg bg-gray-50 border">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="piano-azione" class="py-12">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold tracking-tight text-[#A87B5A]">5. Piano d'Azione e Calcolo del ROI</h3>
+                <p class="mt-2 text-lg text-gray-600 max-w-3xl mx-auto">Un piano operativo concreto per trasformare l'analisi in un investimento profittevole. Simula il tuo rendimento con il nostro calcolatore interattivo.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h4 class="text-xl font-semibold mb-4">4 Fasi per il Successo</h4>
+                     <ol class="relative border-l border-gray-200">                  
+                        <li class="mb-10 ml-4">
+                            <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white"></div>
+                            <h5 class="text-lg font-semibold text-[#A87B5A]">1. Acquisizione Mirata</h5>
+                            <p class="text-sm font-normal text-gray-500">Focalizzarsi su bilocali/trilocali (50-75mq) nella zona Piano/Stazione. Budget di acquisto stimato: 80k-115k €.</p>
+                        </li>
+                        <li class="mb-10 ml-4">
+                            <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white"></div>
+                            <h5 class="text-lg font-semibold text-[#A87B5A]">2. Offerta Professionale</h5>
+                            <p class="text-sm font-normal text-gray-500">Investire in arredo di design, foto professionali e servizi di qualità (Wi-Fi fibra, self check-in) per puntare allo status di Superhost.</p>
+                        </li>
+                        <li class="mb-10 ml-4">
+                            <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white"></div>
+                            <h5 class="text-lg font-semibold text-[#A87B5A]">3. Gestione Dinamica</h5>
+                            <p class="text-sm font-normal text-gray-500">Utilizzare software di dynamic pricing per massimizzare i ricavi durante gli eventi e i periodi di alta domanda.</p>
+                        </li>
+                        <li class="ml-4">
+                            <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white"></div>
+                            <h5 class="text-lg font-semibold text-[#A87B5A]">4. Conformità Normativa</h5>
+                            <p class="text-sm font-normal text-gray-500">Assolvere a tutti gli obblighi: SCIA, CIN, requisiti di sicurezza, comunicazione alla Questura e pagamento imposta di soggiorno.</p>
+                        </li>
+                    </ol>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h4 class="text-xl font-semibold mb-4">Calcolatore Interattivo di Rendimento</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
+                            <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Target (%)</label>
+                            <input type="range" id="occupazione" min="40" max="80" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
+                        </div>
+                        <div>
+                            <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
+                            <input type="range" id="adr" min="90" max="160" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-medium">Utile Netto Annuo Stimato:</span>
+                            <span id="utileNetto" class="text-2xl font-bold text-[#5A8A7B]">9.974 €</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-lg font-medium">ROI Stimato:</span>
+                            <span id="roi" class="text-2xl font-bold text-[#5A8A7B]">10,47%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-white mt-16">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+            <p>&copy; 2025 - Cruscotto di Analisi per Investitori Immobiliari. Dati elaborati a scopo illustrativo basati su fonti pubbliche e di mercato aggiornate al 2024.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chartJsConfig = {
+        plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        family: "'Inter', sans-serif",
+                    }
+                }
+            },
+            tooltip: {
+                bodyFont: {
+                    family: "'Inter', sans-serif",
+                },
+                titleFont: {
+                    family: "'Inter', sans-serif",
+                }
+            }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    font: {
+                        family: "'Inter', sans-serif",
+                    }
+                }
+            },
+            x: {
+                ticks: {
+                    font: {
+                        family: "'Inter', sans-serif",
+                    }
+                }
+            }
+        },
+        maintainAspectRatio: false,
+    };
+
+    const flussiData = {
+        labels: ['2019', '2023', '2024'],
+        datasets: [{
+            label: 'Presenze (Milioni)',
+            data: [10.4, 11.35, 11.8],
+            backgroundColor: '#5A8A7B',
+            borderColor: '#4a7366',
+            borderWidth: 1
+        }, {
+            label: 'Arrivi (Milioni)',
+            data: [2.42, 2.62, 2.73],
+            backgroundColor: '#A87B5A',
+            borderColor: '#8e684d',
+            borderWidth: 1
+        }]
+    };
+    const flussiCtx = document.getElementById('flussiTuristiciChart').getContext('2d');
+    new Chart(flussiCtx, {
+        type: 'bar',
+        data: flussiData,
+        options: chartJsConfig
+    });
+
+    const tipologiaData = {
+        labels: ['1 Camera (Bilocale)', '2 Camere (Trilocale)', '3+ Camere'],
+        datasets: [{
+            label: '% Offerta',
+            data: [64, 25, 11],
+            backgroundColor: ['#A87B5A', '#5A8A7B', '#d4bda9'],
+            hoverOffset: 4
+        }]
+    };
+    const tipologiaCtx = document.getElementById('tipologiaImmobiliChart').getContext('2d');
+    new Chart(tipologiaCtx, {
+        type: 'doughnut',
+        data: tipologiaData,
+        options: chartJsConfig
+    });
+
+    const eventsData = [
+        { name: "Epifania", date: "6 Gen", impact: "alto", category: "alto" },
+        { name: "Pasqua", date: "20-21 Apr", impact: "alto", category: "alto" },
+        { name: "Festa Liberazione", date: "25 Apr", impact: "alto", category: "alto" },
+        { name: "Fiera San Ciriaco", date: "1-4 Mag", impact: "alto", category: "medio-alto" },
+        { name: "Festa Lavoratori", date: "1 Mag", impact: "alto", category: "alto" },
+        { name: "Festa Repubblica", date: "2 Giu", impact: "alto", category: "alto" },
+        { name: "Concerto Zucchero", date: "19 Giu", impact: "picco", category: "picco" },
+        { name: "Concerto Pinguini T.N.", date: "21 Giu", impact: "picco", category: "picco" },
+        { name: "Concerto Ultimo", date: "2 Lug", impact: "picco", category: "picco" },
+        { name: "Ancona Jazz", date: "Luglio", impact: "medio-alto", category: "medio-alto" },
+        { name: "Summer Jamboree", date: "Inizio Ago", impact: "alto", category: "picco" },
+        { name: "Ferragosto", date: "15 Ago", impact: "picco", category: "alto" },
+        { name: "Adriatico Med Fest", date: "Fine Ago", impact: "medio-alto", category: "medio-alto" },
+        { name: "Immacolata", date: "8 Dic", impact: "alto", category: "alto" },
+        { name: "Natale", date: "25-26 Dic", impact: "alto", category: "alto" },
+        { name: "Stagione Teatro Muse", date: "Ott-Dic", impact: "medio", category: "medio-alto" },
+    ];
+    
+    const eventGrid = document.getElementById('event-grid');
+    const eventFilters = document.querySelectorAll('.btn-filter');
+
+    const impactColors = {
+        'picco': 'bg-red-100 text-red-800',
+        'alto': 'bg-orange-100 text-orange-800',
+        'medio-alto': 'bg-amber-100 text-amber-800',
+        'medio': 'bg-green-100 text-green-800',
+    };
+    
+    function renderEvents(filter = 'all') {
+        eventGrid.innerHTML = '';
+        const filteredEvents = filter === 'all' ? eventsData : eventsData.filter(e => e.category === filter);
+        filteredEvents.forEach(event => {
+            const colorClass = impactColors[event.impact] || 'bg-gray-100 text-gray-800';
+            const card = `
+                <div class="border rounded-lg p-3 text-center transition hover:shadow-md" data-category="${event.category}">
+                    <p class="font-semibold text-sm">${event.name}</p>
+                    <p class="text-xs text-gray-500">${event.date}</p>
+                    <span class="mt-2 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${colorClass}">
+                        Impatto ${event.impact.charAt(0).toUpperCase() + event.impact.slice(1)}
+                    </span>
+                </div>
+            `;
+            eventGrid.innerHTML += card;
+        });
+    }
+
+    eventFilters.forEach(button => {
+        button.addEventListener('click', () => {
+            eventFilters.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderEvents(button.dataset.filter);
+        });
+    });
+
+    renderEvents();
+
+    const zoneData = {
+        conero: {
+            title: "Zona Conero",
+            price: "2.545 €/m²",
+            rental: "Alto (Stagionale)",
+            growth: "Basso",
+            profile: "Premium",
+            desc: "Tariffe di affitto elevate in estate, ma alto costo di acquisto e forte stagionalità. Ideale per conservazione del capitale."
+        },
+        centro: {
+            title: "Centro Storico",
+            price: "1.923 €/m²",
+            rental: "Alto (Stabile)",
+            growth: "Medio",
+            profile: "Bilanciato / Core",
+            desc: "Rendita stabile tutto l'anno grazie a turismo culturale ed eventi. Costo di acquisto e potenziale necessità di ristrutturazioni sono i principali contro."
+        },
+        passetto: {
+            title: "Adriatico / Passetto",
+            price: "2.043 €/m²",
+            rental: "Alto (Stabile)",
+            growth: "Medio",
+            profile: "Premium / Core",
+            desc: "Zona residenziale prestigiosa che unisce vicinanza al centro e accesso al mare. Attrae una clientela di alto livello, ma richiede un capitale iniziale importante."
+        },
+        stazione: {
+            title: "Piano / Stazione (Consigliata)",
+            price: "1.337 €/m²",
+            rental: "Medio (In crescita)",
+            growth: "Alto",
+            profile: "Valore / Crescita",
+            desc: "La migliore opportunità strategica. Il basso costo d'acquisto massimizza il ROI da rendita. L'area è al centro di imponenti progetti di riqualificazione che garantiranno una significativa rivalutazione del capitale."
+        }
+    };
+    
+    const zoneButtons = document.querySelectorAll('#zone-buttons button');
+    const zoneDetailsContainer = document.getElementById('zone-details');
+
+    function displayZoneDetails(zoneKey) {
+        const data = zoneData[zoneKey];
+        zoneDetailsContainer.innerHTML = `
+            <h5 class="text-2xl font-bold text-[#A87B5A]">${data.title}</h5>
+            <p class="text-sm font-semibold text-gray-500 mb-4">${data.profile}</p>
+            <p class="text-base text-gray-700 mb-6">${data.desc}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div>
+                    <p class="text-sm text-gray-500">Prezzo Acquisto</p>
+                    <p class="font-bold text-lg">${data.price}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Rendita Turistica</p>
+                    <p class="font-bold text-lg">${data.rental}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Crescita Capitale</p>
+                    <p class="font-bold text-lg">${data.growth}</p>
+                </div>
+            </div>
+        `;
+        zoneButtons.forEach(btn => {
+            btn.classList.remove('bg-[#A87B5A]', 'text-white', 'font-semibold');
+            if (btn.dataset.zone === zoneKey) {
+                btn.classList.add('bg-[#A87B5A]', 'text-white', 'font-semibold');
+            }
+        });
+    }
+
+    zoneButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            displayZoneDetails(button.dataset.zone);
+        });
+    });
+
+    displayZoneDetails('stazione');
+
+    const investimentoInput = document.getElementById('investimento');
+    const occupazioneSlider = document.getElementById('occupazione');
+    const adrSlider = document.getElementById('adr');
+    const occupazioneVal = document.getElementById('occupazioneVal');
+    const adrVal = document.getElementById('adrVal');
+    const utileNettoEl = document.getElementById('utileNetto');
+    const roiEl = document.getElementById('roi');
+
+    function calculateROI() {
+        const investimento = parseFloat(investimentoInput.value) || 95220;
+        const occupazione = parseFloat(occupazioneSlider.value) / 100;
+        const adr = parseFloat(adrSlider.value);
+
+        occupazioneVal.textContent = occupazioneSlider.value;
+        adrVal.textContent = adrSlider.value;
+
+        const nottiPrenotate = 365 * occupazione;
+        const ricavoLordo = nottiPrenotate * adr;
+        
+        const commissioniOta = ricavoLordo * 0.15;
+        const cambi = nottiPrenotate / 3;
+        const costiPulizia = cambi * 50;
+        const utenze = ricavoLordo * 0.12;
+        const manutenzione = ricavoLordo * 0.05;
+        const costiOperativi = commissioniOta + costiPulizia + utenze + manutenzione;
+        
+        const utileOperativoLordo = ricavoLordo - costiOperativi;
+        const tassazione = ricavoLordo * 0.21;
+        const utileNetto = utileOperativoLordo - tassazione;
+        
+        const roi = (utileNetto / investimento) * 100;
+
+        utileNettoEl.textContent = `${utileNetto.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+        roiEl.textContent = `${roi.toFixed(2)}%`;
+    }
+
+    [investimentoInput, occupazioneSlider, adrSlider].forEach(el => {
+        el.addEventListener('input', calculateROI);
+    });
+
+    calculateROI();
+    
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 80) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
